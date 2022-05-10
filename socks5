@@ -1,1 +1,43 @@
+# 1. download the script of GOST
+wget https://github.com/ginuerzh/gost/releases/download/v2.11.1/gost-linux-amd64-2.11.1.gz
+# ynzip
+gunzip gost-linux-amd64-2.11.1.gz
+# mv
+chmod a+x gost-linux-amd64-2.11.1 && mv gost-linux-amd64-2.11.1 /usr/bin/gost
+
+# 2. add user
+sudo adduser gost --home /home/gost
+
+# 3. switch user  gost
+
+su - gost
+
+# 4. config systemd
+
+cat > /etc/systemd/system/gost.service << 'EOF'
+[Unit]
+Description=gost socks5
+After=network-online.target
+
+[Service]
+User=gost
+# gost -L $username:$password@:$port
+ExecStart=/usr/bin/gost -L aaa:bbb@:123
+Restart=on-failure
+RestartSec=3
+LimitNOFILE=infinity
+
+[Install]
+WantedBy=multi-user.target
+
+EOF
+
+systemctl daemon-reload
+systemctl enable gost.service
+systemctl restart gost.service
+
+#systemctl status gost.service
+
+# 5. tail the log.
+journalctl -u gost.service -f 
 
